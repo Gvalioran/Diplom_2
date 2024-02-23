@@ -1,3 +1,4 @@
+import pytest
 import requests
 import allure
 
@@ -11,9 +12,9 @@ class TestCreatingUser:
     @allure.title('Тест успешного создания пользователя')
     def test_can_create_user(self):
         payload = {
-            "email": f"{helpers.generate_random_string(10)}@yandex.ru",
-            "password": helpers.generate_random_string(10),
-            "name": helpers.generate_random_string(10)
+            "email": f"{helpers.generate_string(10)}@yandex.ru",
+            "password": helpers.generate_string(10),
+            "name": helpers.generate_string(10)
         }
         response = requests.post(Url.CREATE_USER, data=payload)
         assert response.status_code == 200
@@ -29,34 +30,16 @@ class TestCreatingUser:
         assert response.status_code == 403
         assert response.json()["message"] == DataTest.ERROR_MESSAGE1
 
-    @allure.title('Тест запрета создания пользователя без заполнения почты')
-    def test_creating_user_without_email(self):
+    @pytest.mark.parametrize("test_email, test_password, test_name",
+                             [["", helpers.generate_string(10), helpers.generate_string(10)],
+                              [f"{helpers.generate_string(10)}@yandex.ru", "", helpers.generate_string(10)],
+                              [f"{helpers.generate_string(10)}@yandex.ru", helpers.generate_string(10), ""]])
+    @allure.title('Тест запрета создания пользователя без обязательных полей')
+    def test_creating_user_without_email(self, test_email, test_password, test_name):
         payload = {
-            "email": "",
-            "password": helpers.generate_random_string(10),
-            "name": helpers.generate_random_string(10)
-        }
-        response = requests.post(Url.CREATE_USER, data=payload)
-        assert response.status_code == 403
-        assert response.json()["message"] == DataTest.ERROR_MESSAGE2
-
-    @allure.title('Тест запрета создания пользователя без заполнения пароля')
-    def test_creating_user_without_password(self):
-        payload = {
-            "email": f"{helpers.generate_random_string(10)}@yandex.ru",
-            "password": "",
-            "name": helpers.generate_random_string(10)
-        }
-        response = requests.post(Url.CREATE_USER, data=payload)
-        assert response.status_code == 403
-        assert response.json()["message"] == DataTest.ERROR_MESSAGE2
-
-    @allure.title('Тест запрета создания пользователя без заполнения имени')
-    def test_creating_user_without_name(self):
-        payload = {
-            "email": f"{helpers.generate_random_string(10)}@yandex.ru",
-            "password": helpers.generate_random_string(10),
-            "name": ""
+            "email": test_email,
+            "password": test_password,
+            "name": test_name
         }
         response = requests.post(Url.CREATE_USER, data=payload)
         assert response.status_code == 403
