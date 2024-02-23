@@ -12,6 +12,6 @@ def user():
 
 @pytest.fixture
 def del_user():
-    user = {}
-    yield user
-    helpers.delite_user(user["json"]["accessToken"])
+    data = {}
+    yield data
+    helpers.delite_user(data["accessToken"])

@@ -10,13 +10,14 @@ from data import Url, DataTest
 class TestCreatingUser:
 
     @allure.title('Тест успешного создания пользователя')
-    def test_can_create_user(self):
+    def test_can_create_user(self, del_user):
         payload = {
             "email": f"{helpers.generate_string(10)}@yandex.ru",
             "password": helpers.generate_string(10),
             "name": helpers.generate_string(10)
         }
         response = requests.post(Url.CREATE_USER, data=payload)
+        del_user.update(response.json())
         assert response.status_code == 200
 
     @allure.title('Тест запрета создания одинаковых пользователей')
